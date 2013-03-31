@@ -34,7 +34,7 @@ LNKSCRIPT = stm32f4xx_flash.ld
 MFLAGS  = -mcpu=cortex-m4 -mthumb
 ASFLAGS = $(MFLAGS)
 CFLAGS  = $(MFLAGS) $(INCLUDES) -DUSE_STDPERIPH_DRIVER -c -fno-common -Os -g
-LFLAGS  = $(MFLAGS) -T $(LNKSCRIPT) -nostartfiles -Wl,-Map=$(NAME).map
+LFLAGS  = -T $(LNKSCRIPT) -nostartfiles -Map=$(NAME).map
 
 CSRC = \
        $(PRJ)/src/stm32f4xx_it.c \
@@ -90,7 +90,13 @@ all: binaries
 #	sed -f iar2gas < $(PRJ)/source/ASM_Function.s > ASM_Function-gcc.S
 
 $(NAME).elf: $(AOBJ) $(COBJ) $(LNKSCRIPT)
-	$(CC) $(LFLAGS) -o $(NAME).elf $(AOBJ) $(COBJ)
+	$(LD) $(LFLAGS) -o $(NAME).elf $(AOBJ) $(COBJ)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $< -o $@
+
+%.o: %.s
+	$(AS) $(AFLAGS) $< -o $@
 
 binaries: $(NAME).elf
 	$(OD) -S $(NAME).elf > $(NAME).lst
